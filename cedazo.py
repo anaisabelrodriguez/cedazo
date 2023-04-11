@@ -3,15 +3,29 @@
 #from openpyxl import Workbook
 import openpyxl
 
-from data import change_colour, remove
-#Damos la localización del fichero 
-ruta_input = "C:\\Users\\pelviram\\COREPY\\CedazoExcel\\in.xlsx"
-ruta_output = "C:\\Users\\pelviram\\COREPY\\CedazoExcel\\out.xlsx"
+from data import change_colour, remove, removeFormatting, unmerge_cells
+#Damos la localización del fichero de entrada
+ruta_input = "C:\\Users\\plapayes\\COREPY\\Cedazo_excel\\in.xlsx"
+#Damos la localización del fichero de salida
+ruta_output = "C:\\Users\\plapayes\\COREPY\\Cedazo_excel\\out.xlsx"
+# Creamos objeto wb (libro) de tipo workbook y lo cargamos con lo del excel
 wb = openpyxl.load_workbook(ruta_input)
-ws = wb.active 
+# Creamos objeto ws (hoja), siendo la hoja activa
+#ws = wb.active 
+ws = wb['Retain Report']
+#print('la celda A1 es:' ,ws['A1'].value)
+
+#Metodo que desmergea las celdas de las filas a eliminar
+unmerge_cells(ws)
+
+# Metodo que sirve para borrar todas las filas de 1 a 11
 #for row in ws: 
 remove(ws)
+
+# Metodo que elimina el color amarillo de todas la celdas que sean amarillas 
 change_colour(ws)
+
+# Save the workbook to the output file
 wb.save(ruta_output)
 
 
