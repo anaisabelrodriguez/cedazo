@@ -3,14 +3,19 @@
 #from openpyxl import Workbook
 import openpyxl
 
-from data import add_column, change_background, change_colour, remove, unmerge_cells
+from data import change_colour, format_column, format_condition, insert_column, remove, unmerge_cells
+from miargparse import parser
+from openpyxl.styles import PatternFill 
 #Damos la localización del fichero de entrada
-ruta_input = "C:\\temp\\in.xlsx"
+#ruta_input = "C:\\Users\\lgordoga\\L99PYTHON\\SPRINT_0\\in_corto.xlsx"
 #Damos la localización del fichero de salida
-ruta_output = "C:\\temp\\out.xlsx"
-
+#ruta_output = "C:\\Users\\lgordoga\\L99PYTHON\\SPRINT_0\\out.xlsx"
 # Creamos objeto wb (libro) de tipo workbook y lo cargamos con lo del excel
-wb = openpyxl.load_workbook(ruta_input)
+args = parser.parse_args()
+#ruta_input = args.ruta_input
+print(args)
+
+wb = openpyxl.load_workbook(args.ruta_input)
 # Creamos objeto ws (hoja), siendo la hoja activa
 ws = wb.active
 
@@ -18,17 +23,23 @@ ws = wb.active
 unmerge_cells(ws)
 
 # Metodo que sirve para borrar todas las filas de 1 a 11
+#for row in ws: 
 remove(ws,1,11)
 
 # Metodo que elimina el color amarillo de todas la celdas que sean amarillas 
 change_colour(ws)
 
-#Método que añade una columna en la posición dada
-add_column(ws,9,"FTES. Pdtes.")
+# Metodo que inserta una columna nueva detrás de la columna H poniendo la cabecera y copiando el formato de la columna H
+insert_column(ws, colNr=9, headerRow=1, headerVal='FTES. Pdtes.')
 
-#Método para cambiar el fondo de la columna I dependiendo de si el valor de F es critica.
-change_background(ws)
+#Metodo que da formato a la columna que se ha creado
+format_column(ws, colNr= 9)
 
+#Metodo que da formato a la columna que se ha creado según criterio  
+color_yellow = PatternFill(start_color="FFFFFF99", end_color="FFFFFF99", fill_type = "solid")
+format_condition(ws, colNr= 9, condition="CRITICA", color=color_yellow)
 
 # Save the workbook to the output file
-wb.save(ruta_output)
+wb.save(args.ruta_output)
+
+
