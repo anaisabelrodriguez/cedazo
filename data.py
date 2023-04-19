@@ -2,16 +2,7 @@ from copy import copy
 from types import CellType
 import openpyxl
 from openpyxl.styles import PatternFill 
-
-
-def remove_empty(ws): 
-    '''Metodo que sirve para borrar todas las filas que estan vacias (no se utiliza de momento porque no sirve para borrar
-       lad filas que hay que eliminar pero tienen contenido)'''
-    filas = ws.max_row
-    for i in range(filas, 0, -1):
-        celdas_vacias = all([cell.value is None for cell in ws[i]])
-        if celdas_vacias:
-            ws.delete_rows(i, 1)
+import unidecode
 
 def unmerge_cells(ws):
     '''Metodo que desmergea las celdas de las filas a eliminar'''
@@ -56,7 +47,7 @@ def insert_column(ws, colNr ,headerRow , headerVal):
     '''Metodo que inserta una columna nueva detrás de la columna H poniendo la cabecera'''
     ws.insert_cols(colNr)
     #añadimos el título a la columna 
-    ws.cell(row=headerRow, column=colNr).value = headerVal
+    change_value(ws,headerRow, colNr, headerVal,None,0)
 
 def format_column(ws, colNr):
     '''Metodo que da formato a la columna que se ha creado usando método range'''
@@ -156,4 +147,44 @@ def format_condition_iter2(ws, colNr, condition, color):
               #correspondiente a la celda en la fila y columna especificadas.
               cell = ws[cell_coor]
               #se cambia el color al nuevo objeto creado
-              cell.fill = color                    
+              cell.fill = color     
+
+def change_value(ws,row,col,title,colour,col_colour):
+    #Metodo para cambiar el valor a una celda y el color
+    ws.cell(row=row, column=col).value = title
+    if colour != None:
+        ws.cell(row=row, column=col_colour).fill = PatternFill(start_color=colour, end_color=colour, fill_type = "solid")
+
+def quitar_acentos(ws,col):
+    '''Metodo que sirve para quitar acentos de una columna dada'''
+    for col_condition in ws.iter_cols(min_row=1, min_col=col, max_col=col): 
+        #el siguiente for itera a través de cada celda en la columna seleccionada
+        for cell_condition in col_condition:
+        #Nos recorremos las celdas de la columna y quitamos los acentos.
+            try:                
+                value_celda_sin_acentos = unidecode.unidecode(cell_condition.value)                
+                cell_condition.value = value_celda_sin_acentos
+            except:
+                continue
+
+def find_string(str):
+    #Función que busca en un string los elementos de la lista, devolviendo True en caso de encontrarlo.
+    lista=['URGENTE','CRITICA','CRITICO']
+    for n in lista:
+        if str.find(n) >= 0:
+            return True
+        else:
+            continue
+    return False
+
+def cambiar_coma(ws,col):
+    #Función que reemplaza la coma decimal por un punto.    
+    for col_condition in ws.iter_cols(min_row=1, min_col=col, max_col=col): 
+        #el siguiente for itera a través de cada celda en la columna seleccionada
+        for cell_condition in col_condition:
+        #Nos recorremos las celdas de la columna y cambiamos la coma por el punto.
+            try:                
+                value_celda = str(cell_condition.value)
+                cell_condition.value = value_celda.replace(",",".")
+            except:
+                continue
